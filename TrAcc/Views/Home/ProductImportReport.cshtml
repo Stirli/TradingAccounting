@@ -1,0 +1,25 @@
+﻿@{
+    ViewBag.Title = "Импорт завершен";
+}
+
+<div>
+    <table>
+        <tr>
+            <td><h3>Импортировано</h3></td>
+            <td>@ViewBag.Imported</td>
+        </tr>
+        <tr>
+            <td><h3>Ошибки:</h3></td>
+            <td>
+                @ViewBag.Errors.Count
+            </td>
+        </tr>
+        @foreach (var err in ViewBag.Errors)
+        {
+            <tr>
+                <td></td>
+                <td>@err</td>
+            </tr>
+        }
+    </table>
+</div>

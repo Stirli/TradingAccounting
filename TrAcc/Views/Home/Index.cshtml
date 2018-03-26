@@ -1,0 +1,28 @@
+﻿@using System.Web.Mvc
+@using System.Web.Mvc.Html
+@{
+    ViewBag.Title = "Home Page";
+}
+<div>
+    <h4>Выберите *.csv файл для загрузки</h4>
+    @using (Html.BeginForm("Upload", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        <input type="file" name="upload" /><br>
+        <input type="submit" value="Загрузить" />
+    }
+    <h3>Продукты</h3>
+    <table>
+        <tr>
+            <td><p>Штрихкод</p></td>
+            <td><p>Наименование</p></td>
+        </tr>
+        @foreach (var p in ViewBag.Products)
+        {
+            <tr>
+                <td><p>@p.Id</p></td>
+                <td><p>@p.Name</p></td>
+                <td><p><a href="/Home/AddToStock/@p.Id">Добавить на склад</a></p></td>
+            </tr>
+        }
+    </table>
+</div>
