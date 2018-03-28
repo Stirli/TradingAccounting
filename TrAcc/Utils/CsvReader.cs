@@ -4,7 +4,7 @@ using System.IO;
 
 namespace TrAcc.Utils
 {
-    public class CSVReader : IDataReader
+    public class CsvReader : IDataReader
     {
         readonly StreamReader _streamReader;
 
@@ -18,7 +18,7 @@ namespace TrAcc.Utils
         // Передаем полный абсолютный путь к файлу, таблицы функций ограничений и преобразований.
         // (о функциях ограничения и преобразования - читайте ниже, в пояснении).
 
-        public CSVReader(string filepath, Func<string, bool>[] constraintsTable, Func<string, object>[] convertTable)
+        public CsvReader(string filepath, Func<string, bool>[] constraintsTable, Func<string, object>[] convertTable)
         {
             _constraintsTable = constraintsTable;
             _convertTable = convertTable;

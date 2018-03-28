@@ -1,28 +1,53 @@
-﻿@using System.Web.Mvc
-@using System.Web.Mvc.Html
-@{
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
     ViewBag.Title = "Home Page";
+    int start = ViewBag.Start;
+    int count = ViewBag.Count;
+    int total = ViewBag.Total;
 }
 <div>
     <h4>Выберите *.csv файл для загрузки</h4>
     @using (Html.BeginForm("Upload", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
     {
+        @Html.Label("Encodings", "Кодировка")
+        @Html.DropDownList("codepage", ViewData["encodings"] as SelectList, new { })
         <input type="file" name="upload" /><br>
         <input type="submit" value="Загрузить" />
     }
-    <h3>Продукты</h3>
-    <table>
-        <tr>
-            <td><p>Штрихкод</p></td>
-            <td><p>Наименование</p></td>
-        </tr>
-        @foreach (var p in ViewBag.Products)
-        {
+    @if (count > 0)
+    {
+        <h3>Продукты</h3>
+        <p>@count из @total</p>
+        <table>
             <tr>
-                <td><p>@p.Id</p></td>
-                <td><p>@p.Name</p></td>
-                <td><p><a href="/Home/AddToStock/@p.Id">Добавить на склад</a></p></td>
+                @for (int i = 0; i <= total / count; i++)
+                {
+                    <td>
+                        @if (i == start / count)
+                        {
+                            <b>@(i + 1)</b>
+                        }
+                        else
+                        {
+                            <a href="/Home/Products?offset=@(i*count)">@(i + 1)</a>
+                        }
+                    </td>
+                }
             </tr>
-        }
-    </table>
+        </table>
+        <table>
+            <tr>
+                <td><p>Штрихкод</p></td>
+                <td><p>Наименование</p></td>
+            </tr>
+            @foreach (var p in ViewBag.Products)
+            {
+                <tr>
+                    <td><p>@p.Id</p></td>
+                    <td><p>@p.Name</p></td>
+                    <td><p><a href="/Home/AddToStock/@p.Id">Добавить на склад</a></p></td>
+                </tr>
+            }
+        </table>
+    }
 </div>

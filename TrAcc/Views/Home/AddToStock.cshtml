@@ -1,0 +1,16 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div>
+    <h3>Добавление на склад</h3>
+    <form method="post" action="">
+        <input type="hidden" value="@ViewBag.ProductId" name="ProductId" />
+        <table>
+            <tr>
+                <td><p>Введите  срок годности</p></td>
+                <td><input type="text" name="Expires" /> </td>
+            </tr>
+            <tr><td><input type="submit" value="Отправить" /> </td><td></td></tr>
+        </table>
+    </form>
+</div>

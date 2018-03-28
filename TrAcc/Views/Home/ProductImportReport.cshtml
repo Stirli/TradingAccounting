@@ -1,25 +1,20 @@
 ﻿@{
+
+    Layout = "~/Views/Shared/_Layout.cshtml";
     ViewBag.Title = "Импорт завершен";
+    bool ok = Equals(ViewBag.Error, string.Empty);
 }
 
-<div>
-    <table>
-        <tr>
-            <td><h3>Импортировано</h3></td>
-            <td>@ViewBag.Imported</td>
-        </tr>
-        <tr>
-            <td><h3>Ошибки:</h3></td>
-            <td>
-                @ViewBag.Errors.Count
-            </td>
-        </tr>
-        @foreach (var err in ViewBag.Errors)
-        {
-            <tr>
-                <td></td>
-                <td>@err</td>
-            </tr>
-        }
-    </table>
+<div style="background: @(ok?"green":"red"); text-align: center; padding: 6px">
+    @if (ok)
+    {
+        <p>Успех</p>
+    }
+    else
+    {
+    <p>В строке №@ViewBag.ErrorLineNum </p>
+    <p>@ViewBag.ErrorLine</p>
+    <p>Возникла ошибка: @ViewBag.Error</p>
+    }
+    @Html.ActionLink("На главную", "Index")
 </div>

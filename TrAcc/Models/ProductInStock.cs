@@ -9,7 +9,8 @@ namespace TrAcc.Models
     public class ProductInStock
     {
         public int Id { get; set; }
-        public int ProductId { get; set; }
+        public string ProductId { get; set; }
+        public DateTime AddDate { get; set; }
         public DateTime Expires { get; set; }
     }
 }

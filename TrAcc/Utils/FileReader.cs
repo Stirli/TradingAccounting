@@ -9,9 +9,11 @@ namespace TrAcc.Utils
 {
     public class FileReader:IDisposable
     {
+        private readonly int _codepage;
         public Stream InputStream { get; set; }
-        public FileReader(Stream inputStream)
+        public FileReader(Stream inputStream, int codepage = 65001)
         {
+            _codepage = codepage;
             InputStream = inputStream;
         }
 
@@ -26,7 +28,7 @@ namespace TrAcc.Utils
                 {
                     if (line.Any())
                     {
-                        yield return System.Text.Encoding.Default.GetString(line.ToArray());
+                        yield return System.Text.Encoding.GetEncoding(_codepage).GetString(line.ToArray());
                         line.Clear();
                     }
                 }

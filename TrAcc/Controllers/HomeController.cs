@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using TrAcc.Models;
@@ -12,51 +14,83 @@ namespace TrAcc.Controllers
     public class HomeController : Controller
     {
         ProductContext db = new ProductContext();
+
         public ActionResult Index()
         {
-            IEnumerable<Product> products = db.Products;
+            var products = db.Products.OrderBy(product => product.Id).Take(20).ToList();
+
+            ViewData["encodings"] = new SelectList(Encoding.GetEncodings().Select(e => e.GetEncoding()), "CodePage", "EncodingName", 1251);
+
+            ViewBag.Start = 0;
+            ViewBag.Count = 20;
+            ViewBag.Total = db.Products.Count();
             ViewBag.Products = products;
             return View();
         }
 
-        [HttpPost]
-        public ActionResult Upload(HttpPostedFileBase upload)
+        [HttpGet]
+        public ActionResult Products(int offset)
         {
-            long count = 0;
-            List<string> errors = new List<string>();
+            var products = db.Products.OrderBy(product => product.Id).Skip(offset).Take(20).ToList();
+
+            ViewData["encodings"] = new SelectList(Encoding.GetEncodings().Select(e => e.GetEncoding()), "CodePage", "EncodingName", 1251);
+
+            ViewBag.Start = offset;
+            ViewBag.Count = 20;
+            ViewBag.Total = db.Products.Count();
+            ViewBag.Products = products;
+            return View("Index");
+        }
+
+        [HttpGet]
+        public ActionResult AddToStock(string id)
+        {
+            ViewBag.ProductId = id;
+            return View();
+        }
+
+        [HttpPost]
+        public string AddToStock(ProductInStock product)
+        {
+            product.AddDate = DateTime.Now;
+            db.Stock.Add(product);
+            db.SaveChanges();
+            return "Готово!";
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Upload(HttpPostedFileBase upload, int codepage)
+        {
+            string error = String.Empty;
+            string errLine = string.Empty;
+            int errLineNum = 1;
             if (upload != null)
             {
-                using (var fr = new FileReader(upload.InputStream))
+                try
                 {
-                    var lines = fr.ReadLines().Skip(1);
-                    foreach (var line in lines)
+                    var path = Path.GetTempFileName();
+                    upload.SaveAs(path);
+                    var lines = System.IO.File.ReadLines(path, Encoding.GetEncoding(codepage));
+                    db.Products.AddRange(lines.Select(line =>
                     {
-                        try
-                        {
-                            var data = line.Split(';');
-                            var product = new Product() { Id = long.Parse(data[0]), Name = data[1] };
-                            if (db.Products.AsEnumerable().Contains(product))
-                            {
-                                throw new ArgumentException(product.Id + " уже существует");
-                            }
-                            else
-                            {
-                                db.Products.Add(product);
-                            }
+                        errLineNum++;
+                        return (errLine = line).Split(';');
+                    }).Select(data => new Product() { Id = data[0].Trim(), Name = data[1].Trim() }));
 
-                            count++;
-                        }
-                        catch (Exception e)
-                        {
-                            errors.Add("Ошибка в строке " + (count) + "\n" + e.Message);
-                        }
-                    }
+                    await db.SaveChangesAsync();
                 }
-                db.SaveChanges();
+                catch (Exception e)
+                {
+                    error = e.Message;
+                    db.UndoChanges();
+                }
             }
 
-            ViewBag.Imported = count;
-            ViewBag.Errors = errors;
+            ViewBag.ErrorLineNum = errLineNum;
+            var encoding = Encoding.GetEncoding(codepage);
+            ViewBag.ErrorLineNum = errLineNum;
+            ViewBag.ErrorLine = Encoding.UTF8.GetString(Encoding.Convert(encoding, Encoding.UTF8, encoding.GetBytes(errLine)));
+            ViewBag.Error = error;
             return View("ProductImportReport");
         }
     }
